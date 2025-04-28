@@ -1,0 +1,32 @@
+name: Deploy Spring Boot App to EC2
+
+on:
+  push:
+    branches:
+      - master  # Push to master branch will trigger the deployment
+
+jobs:
+  deploy:
+    name: Deploy to EC2
+    runs-on: ubuntu-latest  # Ubuntu environment will be used for the deployment
+
+    steps:
+    # Checkout the code from GitHub
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    # SSH into EC2 and deploy
+    - name: SSH into EC2 and Deploy
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.EC2_HOST }}  # EC2 instance IP
+        username: ${{ secrets.EC2_USER }}  # EC2 username (ec2-user/ubuntu)
+        key: ${{ secrets.EC2_SSH_KEY }}  # Private SSH key to authenticate with EC2
+        script: |
+          echo "Deploying to EC2..."
+          cd SpringOnEC2  # Change directory to your project
+          git pull origin master  # Pull the latest changes from GitHub
+          ./mvnw clean package  # Clean and build the Spring Boot app
+          sudo pkill -f 'java -jar' || echo "No app running"  # Kill any running Java app
+          nohup java -jar target/*.jar > app.log 2>&1 &  # Run the app in the background
+
