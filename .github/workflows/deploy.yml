@@ -1,3 +1,4 @@
+
 name: Deploy Spring Boot App to EC2
 
 on:
@@ -29,4 +30,3 @@ jobs:
           ./mvnw clean package  # Clean and build the Spring Boot app
           sudo pkill -f 'java -jar' || echo "No app running"  # Kill any running Java app
           nohup java -jar target/*.jar > app.log 2>&1 &  # Run the app in the background
-
