@@ -35,8 +35,14 @@ jobs:
           
           cd SpringOnEC2
           
-          # Build the application
-          ./mvnw clean package
+          # # Build the application
+          # ./mvnw clean package
           
-          # Run the application in the background
+          # # Run the application in the background
+          # nohup java -jar target/*.jar > app.log 2>&1 &
+
+          mvn clean install
+
           nohup java -jar target/*.jar > app.log 2>&1 &
+
+          
