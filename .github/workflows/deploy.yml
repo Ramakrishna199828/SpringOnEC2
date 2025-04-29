@@ -1,48 +1,53 @@
-name: Deploy Spring Boot Application to EC2 Linux Machine
+name: Deploy springboot Application to EC2
 
 on:
   push:
     branches:
-      - master
+      - master   # Trigger the workflow on push to the 'main' branch
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout Code
-      uses: actions/checkout@v4
+      - name: Checkout Code
+        uses: actions/checkout@v3
 
-    - name: Deploy to EC2
-      uses: appleboy/ssh-action@master
-      with:
-        host: ${{ secrets.EC2_HOST }}
-        username: ${{ secrets.EC2_USER }}
-        key: ${{ secrets.EC2_SSH_KEY }}
-        script: |
-          echo "Server connected successfully."
-          
-          sudo yum update -y
-          
-          # Remove existing folder if it exists (optional safety)
-          rm -rf SpringOnEC2
-          
-          # Correct git clone with PAT (Personal Access Token)
-          git clone -b master https://${{ secrets.MY_GIT_PAT }}@github.com/Ramakrishna199828/SpringOnEC2.git
-          
-          # Stop existing running Spring Boot application
-          pkill -f 'java -jar' || echo "No running app to kill."
-          
-          cd SpringOnEC2
-          
-          # # Build the application
-          # ./mvnw clean package
-          
-          # # Run the application in the background
-          # nohup java -jar target/*.jar > app.log 2>&1 &
+      - name: Set up SSH for EC2
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
 
-          mvn clean install
+      - name: Deploy to EC2 Instance
+        run: |
+          echo "Connecting to EC2 instance..."
+          ssh -o StrictHostKeyChecking=no ec2-user@${{ secrets.EC2_HOST }} << 'EOF'
 
-          nohup java -jar target/*.jar > app.log 2>&1 &
+            sudo lsof -t -i :8080 | xargs sudo kill -9 || true
+            
+            sudo rm -rf SpringOnEC2  # Remove the existing 'deploy' directoryu
 
-          
+            sudo git clone https://Ramakrishna199828:${{ secrets.MY_GIT_PAT }}@github.com/Ramakrishna199828/Fit4Hire.git
+
+
+            # Navigate into the deploy directoryy
+            cd SpringOnEC2 || exit 1
+
+            sudo mvn clean install
+
+            cd target
+
+            JAR_FILE=$(ls *.jar | head -n 1)
+            
+            if [ -z "$JAR_FILE" ]; then
+              echo "No JAR file found in the target directory. Exiting."
+              exit 1
+            fi
+            
+            # Run the JAR file in the background using nohup
+            echo "Running the JAR file: $JAR_FILE"
+            nohup java -jar "$JAR_FILE"> /dev/null 2>&1 &
+
+            sudo systemctl restart httpd
+
+          EOF
