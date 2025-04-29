@@ -27,7 +27,7 @@ jobs:
             
             sudo rm -rf SpringOnEC2  # Remove the existing 'deploy' directoryu
 
-            sudo git clone https://Ramakrishna199828:${{ secrets.MY_GIT_PAT }}@github.com/Ramakrishna199828/Fit4Hire.git
+            sudo git clone https://Ramakrishna199828:${{ secrets.MY_GIT_PAT }}@github.com/Ramakrishna199828/SpringOnEC2.git
 
 
             # Navigate into the deploy directoryy
