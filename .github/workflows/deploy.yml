@@ -21,9 +21,14 @@ jobs:
         key: ${{ secrets.EC2_SSH_KEY }}
         script: |
           echo "server connected"
-          cd SpringOnEC2 || git clone https://github.com/Ramakrishna199828/SpringOnEC2.git && cd SpringOnEC2
-          git pull origin master
-          ./mvnw clean package
+          sudo yum update -y
+          sudo git clone -b master https://Ramakrishna199828:${{ secrets.MY_GIT_PAT }@github.com/Ramakrishna199828/SpringOnEC2.git
+          # cd SpringOnEC2 || git clone https://github.com/Ramakrishna199828/SpringOnEC2.git && cd SpringOnEC2
+          # git pull origin master
+          
           sudo pkill -f 'java -jar' || echo "No app running"
+          cd SpringOnEC2
+          # mvn clean install
+          ./mvnw clean package
           nohup java -jar target/*.jar > app.log 2>&1 &
 
