@@ -8,6 +8,6 @@ public class HomeController {
 
     @GetMapping("/")
     public String sayHello() {
-        return "Hello, World! from springboot Application Good Evening!!!";
+        return "Hello, World! from SpringBoot App!!!";
     }
 }
