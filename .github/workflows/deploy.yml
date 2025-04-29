@@ -20,15 +20,23 @@ jobs:
         username: ${{ secrets.EC2_USER }}
         key: ${{ secrets.EC2_SSH_KEY }}
         script: |
-          echo "server connected"
-          sudo yum update -y
-          sudo git clone -b master https://Ramakrishna199828:${{ secrets.MY_GIT_PAT }@github.com/Ramakrishna199828/SpringOnEC2.git
-          # cd SpringOnEC2 || git clone https://github.com/Ramakrishna199828/SpringOnEC2.git && cd SpringOnEC2
-          # git pull origin master
+          echo "Server connected successfully."
           
-          sudo pkill -f 'java -jar' || echo "No app running"
+          sudo yum update -y
+          
+          # Remove existing folder if it exists (optional safety)
+          rm -rf SpringOnEC2
+          
+          # Correct git clone with PAT (Personal Access Token)
+          git clone -b master https://${{ secrets.MY_GIT_PAT }}@github.com/Ramakrishna199828/SpringOnEC2.git
+          
+          # Stop existing running Spring Boot application
+          pkill -f 'java -jar' || echo "No running app to kill."
+          
           cd SpringOnEC2
-          # mvn clean install
+          
+          # Build the application
           ./mvnw clean package
+          
+          # Run the application in the background
           nohup java -jar target/*.jar > app.log 2>&1 &
-
